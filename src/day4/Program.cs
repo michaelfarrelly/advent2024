@@ -23,7 +23,7 @@ static void Day4Part2()
     Console.WriteLine("Day 3; Part 2");
     // load the data
     var lines = File
-        .ReadLines("src/day4/input.txt")
+        .ReadLines("src/day4/inputFull.txt")
         .ToList();
     
     Console.WriteLine(string.Join(",\n", lines));
@@ -147,12 +147,12 @@ static int FindXShape(List<string> lines, string letters)
                     result++;
                 }
                 
-                if (bl.StartsWith(letters) && bl.StartsWith(letters))
+                if (bl.StartsWith(letters) && br.StartsWith(letters))
                 {
                     result++;
                 }
                 
-                if (tl.StartsWith(letters) && bl.StartsWith(letters))
+                if (tl.StartsWith(letters) && tr.StartsWith(letters))
                 {
                     result++;
                 }
