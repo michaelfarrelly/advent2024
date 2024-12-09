@@ -1,7 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 // Console.WriteLine("Hello, World!");
 
-Day6Part1(args[0]);
+// Day6Part1(args[0]);
+Day6Part2(args[0]);
 return;
 
 static void Day6Part1(string filename = "src/day6/input.txt")
@@ -23,6 +24,48 @@ static void Day6Part1(string filename = "src/day6/input.txt")
 }
 
 
+static void Day6Part2(string filename = "src/day6/input.txt")
+{
+    // load the data
+    var lines = File
+        .ReadLines(filename)
+        .ToList();
+
+    var loopResult = 0;
+
+    var alternateMaps = lines.Count() * lines[0].Length - 1;
+    var nextPosition = new Position(0, 0);
+    for (var a = 0; a < alternateMaps; a++)
+    {
+        var m = new Map(lines);
+        m.AddObstruction(nextPosition);
+        nextPosition += new Position(1, 0);
+        if (nextPosition.x >= lines[0].Length)
+        {
+            nextPosition.y++;
+            nextPosition.x = 0;
+        }
+
+        var state = m.Run();
+        
+        // Console.WriteLine(m.ShowMap());
+
+        if (state == MapState.Looped)
+        {
+            loopResult++;
+        }
+    }
+
+    Console.WriteLine(alternateMaps);
+    
+    // 16829 too high;
+    Console.WriteLine(loopResult);
+
+    // Console.WriteLine(m.ShowMap());
+
+    // Console.WriteLine("Moves {0}", m.CountMoves());
+}
+
 internal class Map
 {
     private Position GuardPosition;
@@ -34,9 +77,18 @@ internal class Map
         this.map = map
             .Select(s => s.ToArray())
             .ToArray();
+
         
         // find guard position.
         this.GuardPosition = this.FindGuardPosition();
+    }
+
+    public void AddObstruction(Position pos)
+    {
+        if (ValidPosition(pos) && this.map[pos.y][pos.x] != '^')
+        {
+            this.map[pos.y][pos.x] = '#';
+        }
     }
 
     public string ShowMap()
@@ -44,9 +96,9 @@ internal class Map
         return string.Join(Environment.NewLine, this.map.Select(s => string.Join("", s)));
     }
 
-    public void Run()
+    public MapState Run()
     {
-        bool running = true;
+        var running = true;
         var i = 0;
         while (running)
         {
@@ -54,9 +106,12 @@ internal class Map
             var state = this.UpdateGuardPosition();
             this.MarkGuardPosition(oldPosition);
             
-            
             // debug:
             i++;
+            if (i > 50000)
+            {
+                return MapState.Looped;
+            }
             if (state == GuardState.Done)
             {
                 running = false;
@@ -64,6 +119,7 @@ internal class Map
         }
         
         // Console.WriteLine("Moves {0}", CountMoves());
+        return MapState.Complete;
     }
 
     public int CountMoves()
@@ -199,4 +255,10 @@ enum GuardState
     Move = 0,
     Rotate = 1,
     Done = 2
+}
+
+enum MapState
+{
+    Complete = 0,
+    Looped,
 }
